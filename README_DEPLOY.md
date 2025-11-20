@@ -29,6 +29,20 @@ Notes on hooks:
 - Use the branch-specific hook in CI or external services when content changes.
 - If a hook URL is leaked, create a new hook and delete the old one in the Netlify admin UI.
 
+GitHub Actions integration
+
+- I added a workflow `.github/workflows/netlify-trigger.yml` that will POST to Netlify build hooks when
+  commits are pushed to `main` or `staging`. To enable it, add the following repository secrets in
+  GitHub (Settings → Secrets & variables → Actions):
+
+  - `NETLIFY_HOOK_PROD` — `https://api.netlify.com/build_hooks/691ef09886c33464fb50d2e0`
+  - `NETLIFY_HOOK_MAIN` — `https://api.netlify.com/build_hooks/691ef1829eb1a66b0adbdd0d`
+  - `NETLIFY_HOOK_STAGING` — `https://api.netlify.com/build_hooks/691ef2c05ac1836d37006328`
+
+  The Action will use `NETLIFY_HOOK_MAIN` when pushing to `main` and `NETLIFY_HOOK_STAGING` when
+  pushing to `staging`. If you prefer the Action to call the production hook, set `NETLIFY_HOOK_MAIN`
+  to the production hook URL.
+
 Enable continuous Git deploys (recommended)
 
 1. Open the Netlify admin link above and go to "Site settings → Build & deploy → Continuous Deployment".

@@ -1,0 +1,28 @@
+name: Trigger Netlify build hooks
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+
+jobs:
+  trigger-hook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Determine hook
+        id: hook
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            echo "HOOK=${{ secrets.NETLIFY_HOOK_MAIN }}" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF}" == "refs/heads/staging" ]]; then
+            echo "HOOK=${{ secrets.NETLIFY_HOOK_STAGING }}" >> $GITHUB_OUTPUT
+          else
+            echo "HOOK=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Call Netlify build hook
+        if: steps.hook.outputs.HOOK != ''
+        run: |
+          echo "Triggering Netlify hook for ${GITHUB_REF}"
+          curl -X POST "${{ steps.hook.outputs.HOOK }}"
