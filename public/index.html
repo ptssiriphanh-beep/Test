@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Order — QuickShop</title>
+    <meta name="description" content="Quick, shareable order page for customers" />
+    <style>
+      :root{--bg:#f6f7fb;--card:#ffffff;--accent:#6c63ff;--muted:#6b7280}
+      *{box-sizing:border-box}
+      html,body{height:100%}
+      body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;color:#0f172a;background:linear-gradient(180deg,#eef2ff 0%,var(--bg) 60%);display:flex;align-items:center;justify-content:center;padding:24px}
+      .app{width:100%;max-width:520px}
+      header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+      .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#00bcd4);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+      h1{font-size:1.25rem;margin:0}
+      p.lead{margin:6px 0 0;color:var(--muted);font-size:0.95rem}
+
+      .card{background:var(--card);border-radius:14px;padding:18px;box-shadow:0 6px 20px rgba(15,23,42,0.07)}
+      form .row{display:flex;gap:12px}
+      label{display:block;font-size:0.85rem;color:#111827;margin-bottom:6px}
+      input[type=text],input[type=number],select,textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #e6e9ef;font-size:1rem}
+      .field{margin-bottom:12px}
+      button.primary{background:linear-gradient(90deg,var(--accent),#00bcd4);color:white;padding:12px 16px;border-radius:10px;border:none;font-weight:600;cursor:pointer;width:100%;font-size:1rem}
+      .muted{color:var(--muted);font-size:0.9rem}
+      #result{margin-top:12px;font-size:0.95rem}
+      .actions{display:flex;gap:8px;margin-top:12px}
+      .btn-outline{background:transparent;border:1px solid #e6e9ef;padding:10px;border-radius:10px;cursor:pointer}
+      @media (max-width:420px){body{padding:16px}.logo{width:42px;height:42px}}
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div class="logo">QS</div>
+        <div>
+          <h1>QuickShop — Place an Order</h1>
+          <p class="lead">Share this single link — customers order without installing anything.</p>
+        </div>
+      </header>
+
+      <main class="card">
+        <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+          <div style="flex:1 1 180px;max-width:220px">
+            <!-- Product image: replace data URL with your real image path or URL -->
+            <img id="productImage" src="/images/mini-banana-cupcake.jpg" alt="Mini Banana Cupcake" style="width:100%;border-radius:12px;display:block;object-fit:cover;border:1px solid #eef2ff;cursor:pointer" />
+            <div style="text-align:center;margin-top:8px;font-size:0.85rem;color:var(--muted)">Tap image to enlarge</div>
+            <!-- Modal / Lightbox -->
+            <div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.7);align-items:center;justify-content:center;z-index:1200;padding:20px">
+              <div style="max-width:900px;width:100%;background:transparent;">
+                <button id="lightboxClose" aria-label="Close" style="background:transparent;border:none;color:white;font-size:22px;float:right;">✕</button>
+                <img id="lightboxImage" src="/images/mini-banana-cupcake.jpg" alt="Mini Banana Cupcake large" style="width:100%;border-radius:10px;display:block;object-fit:contain;max-height:80vh;margin-top:8px" />
+                <div style="margin-top:8px;background:white;padding:12px;border-radius:8px;">
+                  <h3 style="margin:0">Mini Banana Cupcake</h3>
+                  <p class="muted" style="margin:6px 0 0">One pack has 30 mini cupcakes — 50,000 KIP per pack.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="flex:2 1 260px;min-width:220px">
+            <h2 style="margin:0 0 6px">Mini Banana Cupcake</h2>
+            <p class="muted" style="margin:0 0 12px">One pack has 30 mini cupcakes.</p>
+
+            <div class="field" style="margin-bottom:6px">
+              <label>Price</label>
+              <div style="font-size:1.1rem;font-weight:700">50,000 KIP / pack</div>
+            </div>
+
+            <div class="row" style="margin-bottom:12px;align-items:center">
+              <div style="flex:0 0 140px">
+                <label for="qtyPacks">Packs</label>
+                <input id="qtyPacks" type="number" min="1" value="1" style="width:100%;" />
+              </div>
+              <div style="flex:1;text-align:right">
+                <div class="muted">Total</div>
+                <div id="totalPrice" style="font-weight:700;font-size:1.1rem">50,000 KIP</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:8px">
+              <button id="addToCart" class="primary" style="flex:1">Add to cart</button>
+              <button id="buyNow" class="btn-outline" style="flex:1">Buy now</button>
+            </div>
+
+            <div id="cart" style="margin-top:12px;display:none">
+              <h3 style="margin:8px 0">Cart</h3>
+              <div id="cartItems" class="muted">No items yet.</div>
+              <div style="margin-top:8px">
+                <button id="checkout" class="primary">Checkout (Bank transfer)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="checkoutPanel" style="display:none;margin-top:16px">
+          <div style="background:#fbfbff;padding:14px;border-radius:10px;border:1px solid #eef2ff">
+            <h3 style="margin-top:0">Bank transfer — Complete your payment</h3>
+            <p class="muted">Transfer the total amount to the bank account below. Show the transfer receipt to confirm the order.</p>
+
+            <!-- Replace these constants in the script below with your real bank details and QR image URL -->
+            <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+              <div style="flex:0 0 160px">
+                <img id="bankQr" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><rect width='100%' height='100%' fill='%23fffaf0'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%239ca3af' font-size='18'>Your Bank QR</text></svg>" alt="Bank QR code" style="width:160px;height:160px;border-radius:8px;border:1px solid #e6e9ef;display:block;object-fit:cover" />
+              </div>
+
+              <div style="flex:1;min-width:180px">
+                <div><strong id="bankName">BANK NAME</strong></div>
+                <div id="accountName" class="muted">Account: YOUR_NAME</div>
+                <div id="accountNumber" class="muted">Account No: 000-000-000</div>
+                <div style="margin-top:8px"><strong>Total:</strong> <span id="checkoutTotal">0 KIP</span></div>
+                <div class="muted" style="margin-top:8px">After transfer, please send a screenshot to confirm.</div>
+              </div>
+            </div>
+
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button id="copyAccount" class="btn-outline">Copy account details</button>
+              <button id="done" class="btn-outline">Done</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload form (visible after confirm). Uses FORM_ENDPOINT if configured. -->
+        <!-- Payments: QR and phone transfer option -->
+        <div id="paymentOptions" style="margin-top:12px">
+          <div style="margin-top:8px">Or transfer using phone number:</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+            <div style="font-weight:700">020 5289 5996</div>
+            <button id="copyPhone" class="btn-outline">Copy phone</button>
+            <button id="waPhone" class="btn-outline">Message on WhatsApp</button>
+          </div>
+        </div>
+
+        <!-- Confirmation modal: collect name & phone before showing QR -->
+        <div id="confirmModal" style="display:none;position:fixed;inset:0;z-index:1300;align-items:center;justify-content:center;padding:20px;background:rgba(2,6,23,0.6)">
+          <div style="width:100%;max-width:420px;background:var(--card);padding:16px;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.2)">
+            <h3 style="margin:0 0 8px">Confirm your order</h3>
+            <p class="muted" style="margin:0 0 12px">Please provide your name and phone so we can contact you about the order.</p>
+            <div class="field"><label for="custName">Name</label><input id="custName" type="text" required /></div>
+            <div class="field"><label for="custPhone">Phone</label><input id="custPhone" type="text" required placeholder="+856 20 ..."/></div>
+            <div style="display:flex;gap:8px"><button id="confirmOrder" class="primary" style="flex:1">Confirm & Show QR</button><button id="cancelConfirm" class="btn-outline" style="flex:1">Cancel</button></div>
+          </div>
+        </div>
+
+        <div class="actions" style="margin-top:12px">
+          <button id="copyLink" class="btn-outline">Copy page link</button>
+          <button id="shareWhatsapp" class="btn-outline">Share via WhatsApp</button>
+        </div>
+      </main>
+    </div>
+
+      <script>
+      // CONFIG: replace these with your real values
+      const PRICE_PER_PACK = 50000; // in KIP
+      const PACK_SIZE = 30; // cupcakes per pack
+      const BANK_QR_URL = '/images/bank-qr-web.png';// optional: replace with your hosted QR image URL
+      const BANK_NAME = 'Phoutthasin SILIPHAN';
+      const ACCOUNT_NAME = 'Phoutthasin SILIPHAN';
+      const ACCOUNT_NUMBER = '160-12-00-01409987-001';
+      // No upload configured: customers can scan the QR or transfer using the phone number shown below.
+
+      // Elements
+      const qtyInput = document.getElementById('qtyPacks');
+      const totalPriceEl = document.getElementById('totalPrice');
+      const addToCartBtn = document.getElementById('addToCart');
+      const buyNowBtn = document.getElementById('buyNow');
+      const cartEl = document.getElementById('cart');
+      const cartItemsEl = document.getElementById('cartItems');
+      const checkoutBtn = document.getElementById('checkout');
+      const checkoutPanel = document.getElementById('checkoutPanel');
+      const checkoutTotal = document.getElementById('checkoutTotal');
+      const bankQr = document.getElementById('bankQr');
+      const bankNameEl = document.getElementById('bankName');
+      const accountNameEl = document.getElementById('accountName');
+      const accountNumberEl = document.getElementById('accountNumber');
+      const copyLinkBtn = document.getElementById('copyLink');
+      const waBtn = document.getElementById('shareWhatsapp');
+      const copyAccountBtn = document.getElementById('copyAccount');
+      const doneBtn = document.getElementById('done');
+      // confirmation elements
+      const confirmModal = document.getElementById('confirmModal');
+      const confirmOrderBtn = document.getElementById('confirmOrder');
+      const cancelConfirmBtn = document.getElementById('cancelConfirm');
+      const custNameInput = document.getElementById('custName');
+      const custPhoneInput = document.getElementById('custPhone');
+      // phone payment elements
+      const copyPhoneBtn = document.getElementById('copyPhone');
+      const waPhoneBtn = document.getElementById('waPhone');
+      const productImage = document.getElementById('productImage');
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImage = document.getElementById('lightboxImage');
+      const lightboxClose = document.getElementById('lightboxClose');
+
+      // Initialize bank details UI
+      bankNameEl.textContent = BANK_NAME;
+      accountNameEl.textContent = 'Account: ' + ACCOUNT_NAME;
+      accountNumberEl.textContent = 'Account No: ' + ACCOUNT_NUMBER;
+      if (BANK_QR_URL) bankQr.src = BANK_QR_URL;
+
+      // Image fallback: if user hasn't added an image file, use inline SVG placeholder
+      const SVG_FALLBACK = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="48%" dominant-baseline="middle" text-anchor="middle" fill="%239ca3af" font-size="40">Mini Banana Cupcake</text></svg>';
+      function setImgFallback(imgEl){
+        imgEl.onerror = function(){ imgEl.src = SVG_FALLBACK; };
+      }
+      setImgFallback(productImage);
+      setImgFallback(lightboxImage);
+
+      // Lightbox behavior
+      productImage.addEventListener('click', () => {
+        // show the larger optimized web image if available
+        const web = '/images/mini-banana-cupcake-web.jpg';
+        lightboxImage.src = productImage.getAttribute('data-large') || web || productImage.src || lightboxImage.src;
+        lightbox.style.display = 'flex';
+        setTimeout(()=> lightbox.style.opacity = '1', 10);
+      });
+      // allow clicking the bank QR to open the same lightbox for a large view
+      bankQr.style.cursor = 'pointer';
+      bankQr.addEventListener('click', () => {
+        const qrLarge = BANK_QR_URL || bankQr.src;
+        lightboxImage.src = qrLarge;
+        lightbox.style.display = 'flex';
+        setTimeout(()=> lightbox.style.opacity = '1', 10);
+      });
+      lightboxClose.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', (e)=>{ if (e.target === lightbox) closeLightbox(); });
+      function closeLightbox(){ lightbox.style.display = 'none'; }
+
+      // Cart state
+      let cart = { packs: 0 };
+
+      function formatKip(n){
+        return n.toLocaleString('en-US') + ' KIP';
+      }
+
+      function updateTotal(){
+        const qty = Math.max(1, Number(qtyInput.value) || 1);
+        const total = qty * PRICE_PER_PACK;
+        totalPriceEl.textContent = formatKip(total);
+      }
+
+      qtyInput.addEventListener('input', updateTotal);
+      updateTotal();
+
+      addToCartBtn.addEventListener('click', () => {
+        const packs = Math.max(1, Number(qtyInput.value) || 1);
+        cart.packs += packs;
+        renderCart();
+      });
+
+      buyNowBtn.addEventListener('click', () => {
+        cart.packs = Math.max(1, Number(qtyInput.value) || 1);
+        renderCart();
+        openCheckout();
+      });
+
+      function renderCart(){
+        if (cart.packs <= 0){
+          cartEl.style.display = 'none';
+          cartItemsEl.textContent = 'No items yet.';
+          return;
+        }
+        cartEl.style.display = 'block';
+        const total = cart.packs * PRICE_PER_PACK;
+        cartItemsEl.innerHTML = `${cart.packs} pack(s) — ${PACK_SIZE} cupcakes/pack<br><strong>${formatKip(total)}</strong>`;
+      }
+
+      checkoutBtn.addEventListener('click', openCheckout);
+
+      function openCheckout(){
+        if (cart.packs <= 0) return alert('Cart is empty');
+        // show confirm modal to collect user info before revealing QR and upload
+        confirmModal.style.display = 'flex';
+      }
+
+      cancelConfirmBtn.addEventListener('click', ()=>{ confirmModal.style.display = 'none'; });
+
+      confirmOrderBtn.addEventListener('click', ()=>{
+        const name = custNameInput.value.trim();
+        const phone = custPhoneInput.value.trim();
+        if (!name || !phone) return alert('Please enter name and phone');
+        confirmModal.style.display = 'none';
+        const total = cart.packs * PRICE_PER_PACK;
+        checkoutTotal.textContent = formatKip(total);
+        checkoutPanel.style.display = 'block';
+        // upload/receipt flow removed — customers can send screenshot by WhatsApp or use the phone number below
+      });
+
+      copyLinkBtn.addEventListener('click', async () => {
+        try{ await navigator.clipboard.writeText(window.location.href); alert('Page link copied'); }catch(e){ alert('Copy failed'); }
+      });
+
+      waBtn.addEventListener('click', () => {
+        const message = `Place an order: ${window.location.href}`;
+        window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
+      });
+
+      copyAccountBtn.addEventListener('click', async () => {
+        const text = `${BANK_NAME}\n${ACCOUNT_NAME}\n${ACCOUNT_NUMBER}`;
+        try{ await navigator.clipboard.writeText(text); alert('Account details copied'); }catch(e){ alert('Copy failed'); }
+      });
+
+      // Phone copy and WhatsApp for phone
+      copyPhoneBtn.addEventListener('click', async () => {
+        const phone = '020 5289 5996';
+        try { await navigator.clipboard.writeText(phone); alert('Phone number copied: ' + phone); } catch(e){ alert('Copy failed'); }
+      });
+
+      waPhoneBtn.addEventListener('click', () => {
+        const message = `I placed an order for ${cart.packs} pack(s). Please confirm.`;
+        window.open('https://wa.me/?text=' + encodeURIComponent(message + ' Phone: 020 5289 5996 ' + window.location.href), '_blank');
+      });
+
+      doneBtn.addEventListener('click', () => { checkoutPanel.style.display = 'none'; cart = { packs: 0 }; renderCart(); });
+
+      // initial render
+      renderCart();
+      
+      // Accessibility: allow pressing Enter to add to cart
+      qtyInput.addEventListener('keyup', (e)=>{ if (e.key === 'Enter') addToCartBtn.click(); });
+      
+      // Note: this static checkout only shows bank details and QR. To receive orders you can
+      // ask customers to send transfer screenshot to your phone or use a form/webhook to collect receipts.
+      
+      // END
+      </script>
+  </body>
+</html>
