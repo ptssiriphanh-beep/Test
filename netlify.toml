@@ -1,9 +1,0 @@
-[build]
-  publish = "public"
-
-[dev]
-  command = "python3 -m http.server 3000 --directory public"
-  port = 3000
-
-[context.production.environment]
-# Add environment variables here if you use any (e.g., API keys)
