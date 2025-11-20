@@ -1,3 +1,65 @@
+# Deploying the static storefront
+
+This document shows how the site is deployed and includes build-hook/webhook details and instructions
+for connecting a custom domain.
+
+Site created on Netlify
+- Name: `mini-banana-cupcake-store-ptssiriphanh-beep`
+- Admin: https://app.netlify.com/projects/mini-banana-cupcake-store-ptssiriphanh-beep
+- Live: https://mini-banana-cupcake-store-ptssiriphanh-beep.netlify.app
+
+Build hooks (manual deploy triggers)
+
+- Two build hooks were created. Keep the URLs private; anyone with the URL can trigger a deploy:
+
+  - Production/main hook: `https://api.netlify.com/build_hooks/691ef09886c33464fb50d2e0`
+  - Named main-branch hook: `https://api.netlify.com/build_hooks/691ef1829eb1a66b0adbdd0d`
+
+Trigger with curl:
+
+```bash
+# trigger a production deploy
+curl -X POST https://api.netlify.com/build_hooks/691ef09886c33464fb50d2e0
+
+# trigger a deploy for the `main` branch
+curl -X POST https://api.netlify.com/build_hooks/691ef1829eb1a66b0adbdd0d
+```
+
+Notes on hooks:
+- Use the branch-specific hook in CI or external services when content changes.
+- If a hook URL is leaked, create a new hook and delete the old one in the Netlify admin UI.
+
+Enable continuous Git deploys (recommended)
+
+1. Open the Netlify admin link above and go to "Site settings → Build & deploy → Continuous Deployment".
+2. Click "Link repository" (Netlify will ask you to authorize the Netlify GitHub App). Select
+   `ptssiriphanh-beep/Test` and set:
+   - Branch: `main`
+   - Build command: (leave blank)
+   - Publish directory: `public`
+3. Save; Netlify will create webhooks and start automatic CI builds on push.
+
+Custom domain (optional)
+
+- To add a custom domain, give me the domain name (e.g., `example.com`) and confirm you control DNS.
+- Steps I will take:
+  1. Add the domain in Netlify site settings.
+  2. Provide DNS records to add at your domain registrar (CNAME for `www` pointing to the Netlify domain,
+     or A/ALIAS records for the apex). Netlify will show the exact records after adding the domain.
+  3. After DNS is set, Netlify will provision TLS automatically.
+
+Local preview
+
+To preview the static site locally:
+
+```bash
+python3 -m http.server 3000 --directory public
+# then open http://localhost:3000
+```
+
+Security reminder
+
+- If you created a personal Netlify token for deployments, revoke it when finished: https://app.netlify.com/user/applications#personal-access-tokens
 # Deploying the static storefront (Netlify)
 
 This file documents the Netlify deployment steps and a build hook created for manual triggers.
