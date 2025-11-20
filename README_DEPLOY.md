@@ -1,3 +1,28 @@
+# Deploying the static storefront (Netlify)
+
+This file documents the Netlify deployment steps and a build hook created for manual triggers.
+
+Site (created via CLI):
+- Name: `mini-banana-cupcake-store-ptssiriphanh-beep`
+- Admin: https://app.netlify.com/projects/mini-banana-cupcake-store-ptssiriphanh-beep
+- Live: https://mini-banana-cupcake-store-ptssiriphanh-beep.netlify.app
+
+Build hook (manual deploy trigger)
+- I created a build hook so you can trigger production deploys with a single POST request.
+- Hook URL: `https://api.netlify.com/build_hooks/691ef09886c33464fb50d2e0`
+
+Trigger with curl:
+
+```bash
+curl -X POST https://api.netlify.com/build_hooks/691ef09886c33464fb50d2e0
+```
+
+Notes:
+- To enable continuous Git deploys (push → automatic deploy), open the Netlify admin URL above and "Link repository" under Build & deploy. Netlify will request GitHub authorization to create webhooks and read your repository.
+- If you revoke the personal token used to create the site, re-run the CLI steps with a new token or connect via the Netlify UI.
+
+Security reminder:
+- If you created a personal Netlify token to let me deploy, revoke it from https://app.netlify.com/user/applications#personal-access-tokens when you're done.
 # Deploying the static storefront
 
 This project serves a static storefront from the `public/` folder. Below are simple, step-by-step options to publish the site so you can share a public link with customers.
